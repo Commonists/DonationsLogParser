@@ -49,14 +49,31 @@ class DonationsParser(HTMLParser, object):
 		data = re.findall(r'\d+', s)
 		return data
 
-	def print_donations(self):
+	def print_csv(self):
 		"""
 		Print donations as CSV
 		"""
-		print "day, sum, quantity, avg"
+		print "'day', 'sum', 'quantity', 'avg'"
 		for k in sorted(self.donations.keys()):
 			data = self.donations[k]
-			print "%04d-%02d-%s, %d, %d, %.2f" % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+			print "'%04d-%02d-%s', %d, %d, %.2f" % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+
+	def print_js(self, js):
+		"""
+		print donations to JS array
+		"""
+		n = len(self.donations.keys())
+		i = 0
+		print "var %s = [" % (js)
+		print "['day', 'sum', 'quantity', 'avg'],"
+		for k in sorted(self.donations.keys()):
+			i+=1
+			data = self.donations[k]
+			print_format = "['%04d-%02d-%s', %d, %d, %.2f]," 
+			if i==n:
+				print_format = "['%04d-%02d-%s', %d, %d, %.2f]" # no comma for the last row
+			print print_format  % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+		print "];"
 
 
 def url_from_args(year, month):
@@ -93,6 +110,12 @@ def main():
 						metavar="MONTH",
 						required=True,
                         help="Donation month")	
+	parser.add_argument("-j", "--js",
+    					type=str,
+                        dest="js",
+						metavar="JS",
+						required=False,
+                        help="Name of JS var to export to")	
 	args = parser.parse_args()
 	#checking args
 	if args.year<0 or args.year>9999:
@@ -103,7 +126,10 @@ def main():
 	content = get_page(url_from_args(args.year, args.month))
 	donations_parser = DonationsParser(args.year, args.month)
 	donations_parser.feed(content)
-	donations_parser.print_donations()
+	if args.js:
+		donations_parser.print_js(args.js)
+	else:
+		donations_parser.print_csv()
 
 if __name__ == "__main__":
 	main()
