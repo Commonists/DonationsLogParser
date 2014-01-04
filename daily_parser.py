@@ -9,8 +9,10 @@ class DonationsParser(HTMLParser, object):
 	"""
 	HTML parser for the donations log of Wikimedia France
 	"""
-	def __init__(self):
+	def __init__(self, year, month):
 		super(DonationsParser, self).__init__()
+		self.year = year
+		self.month = month
 		self.status = 0
 		self.current_line = ""
 		self.donations = dict()
@@ -46,6 +48,16 @@ class DonationsParser(HTMLParser, object):
 		s = line.replace(' ', '') 
 		data = re.findall(r'\d+', s)
 		return data
+
+	def print_donations(self):
+		"""
+		Print donations as CSV
+		"""
+		print "day, sum, quantity, avg"
+		for k in sorted(self.donations.keys()):
+			data = self.donations[k]
+			print "%04d-%02d-%s, %d, %d, %.2f" % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+
 
 def url_from_args(year, month):
 	"""
@@ -89,10 +101,9 @@ def main():
 		raise ValueError('month should be between 1 and 12 (instead of %d)' % (args.month))
 	# 
 	content = get_page(url_from_args(args.year, args.month))
-	donations_parser = DonationsParser()
+	donations_parser = DonationsParser(args.year, args.month)
 	donations_parser.feed(content)
-	for k in sorted(donations_parser.donations.keys()):
-		print "%s: %s" % (k, donations_parser.donations[k])
+	donations_parser.print_donations()
 
 if __name__ == "__main__":
 	main()
