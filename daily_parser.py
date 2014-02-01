@@ -75,7 +75,6 @@ class DonationsParser(HTMLParser, object):
 			print print_format  % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
 		print "];"
 
-
 def url_from_args(year, month):
 	"""
 	Generate Donation log url from args
@@ -97,7 +96,11 @@ def main():
 	from argparse import ArgumentParser
 	description = "Parse donations data from dons.wikimedia.fr"
 	parser = ArgumentParser(description=description)
-
+	parser.add_argument("-a", "--all",
+						action="store_true",
+						dest="all",
+						required=False,
+						help="Aggregate results of the whole year")
 	parser.add_argument("-y", "--year",
     					type=int,
                         dest="year",
@@ -108,28 +111,40 @@ def main():
     					type=int,
                         dest="month",
 						metavar="MONTH",
-						required=True,
+						required=False,
                         help="Donation month")	
 	parser.add_argument("-j", "--js",
     					type=str,
                         dest="js",
 						metavar="JS",
 						required=False,
-                        help="Name of JS var to export to")	
+                        help="Name of JS var to export to")
 	args = parser.parse_args()
 	#checking args
 	if args.year<0 or args.year>9999:
 		raise ValueError('year should be between 0 and 9999 (instead of %d)' % (args.year))
-	if args.month<1 or args.month>12:
-		raise ValueError('month should be between 1 and 12 (instead of %d)' % (args.month))
-	# 
-	content = get_page(url_from_args(args.year, args.month))
-	donations_parser = DonationsParser(args.year, args.month)
-	donations_parser.feed(content)
-	if args.js:
-		donations_parser.print_js(args.js)
+	if args.all:
+		# aggregate on the whole year
+		results = dict()
+		for month in range(1, 13):
+			content = get_page(url_from_args(args.year, month))
+			donations_parser = DonationsParser(args.year, month)
+			donations_parser.feed(content)
+			for k in donations_parser.donations.keys():
+				key = "%04d-%02d-%s" % (args.year, month, k)
+				results[key]=donations_parser.donations[k]
+		print results
 	else:
-		donations_parser.print_csv()
+		if args.month<1 or args.month>12:
+			raise ValueError('month should be between 1 and 12 (instead of %d)' % (args.month))
+		# 
+		content = get_page(url_from_args(args.year, args.month))
+		donations_parser = DonationsParser(args.year, args.month)
+		donations_parser.feed(content)
+		if args.js:
+			donations_parser.print_js(args.js)
+		else:
+			donations_parser.print_csv()
 
 if __name__ == "__main__":
 	main()
