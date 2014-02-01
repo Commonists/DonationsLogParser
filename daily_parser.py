@@ -89,6 +89,18 @@ def get_page(url):
 	import urllib
 	return urllib.urlopen(url).read()
 
+def export_annual_result(donations):
+	"""
+	Export and aggregate entire year resuls.
+	"""
+	money = 0
+	donators = 0
+	print "%d days of donations" % (len(donations.keys()))
+	for k in donations.keys():
+		money += donations[k]['sum']
+		donators += donations[k]['quantity']
+	print "Total donations: %d\nTotal donators: %d" % (money, donators)
+
 def main():
 	"""
 	Main function of the script parse_donations.py.
@@ -133,7 +145,7 @@ def main():
 			for k in donations_parser.donations.keys():
 				key = "%04d-%02d-%s" % (args.year, month, k)
 				results[key]=donations_parser.donations[k]
-		print results
+		export_annual_result(results)
 	else:
 		if args.month<1 or args.month>12:
 			raise ValueError('month should be between 1 and 12 (instead of %d)' % (args.month))
