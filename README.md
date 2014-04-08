@@ -1,7 +1,8 @@
 DonationsLogParser
 ==================
 
-Donations Log Parser for Wikimedia France. It allows to export donations log by month into CSV or JS array.
+Donations Log Parser for Wikimedia France. 
+It allows to export donations log by month into CSV or Java Script array.
 
 Usage
 -----
