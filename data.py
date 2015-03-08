@@ -1,15 +1,21 @@
 #!/usr/bin/python
 """ Manages donation database. """
 
+import datetime
 import sqlite3
 
 
 class Donation:
 
+    DATE_FIELD = 0
+    NAME_FIELD = 1
+    DONATION_FIELD = 2
+    COMMENT_FIELD = 3
+
     def __init__(self, date, name, donation, comment, db=None):
         # checking datetime format
         try:
-            datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%s')
+            datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         except ValueError:
             raise ValueError(
                 "%s should be in YYYY-mm-dd HH:MM:ss format" % date)
@@ -24,12 +30,8 @@ class Donation:
         if db is not None:
             db.insert(self)
 
-    def __str__(self):
-        str_format = """'date': %s, 'name': %s, 'donation': %s, 'comment': %s"""
-        return str_format % (self.date, self.name, self.donation, self.comment)
-
     def __repr__(self):
-        return '\n'.join([self.date, self.name, self.donation, self.comment])
+        return ';'.join([self.date, self.name, str(self.donation), self.comment])
 
 
 class DonationDatabase:
@@ -61,14 +63,28 @@ class DonationDatabase:
 
     def listall(self):
         """ Returns a list of all the donation in the database. """
+        self.cursor.execute("""SELECT
+            date, name, donation, comment
+            FROM donations""")
+        all_result = self.cursor.fetchall()
+        list_donations = []
+        for d in all_result:
+            list_donations.append(Donation(d[Donation.DATE_FIELD],
+                                           d[Donation.NAME_FIELD],
+                                           d[Donation.DONATION_FIELD],
+                                           d[Donation.COMMENT_FIELD],
+                                           db=self))
+        return list_donations
 
 
 def main():
     """ Main function of the scripts."""
-    db = DonationDatabase("dons.db")
+    db = DonationDatabase("dons.db", is_drop_table=True)
 
-    db.insert('2014-05-06 12:00', "Pi", 50.0, "I love wiki")
-    db.insert('2014-06-08 14:15', "Te", 15, "Yeah \o/")
+    db.insert(Donation('2014-05-06 12:00:05', "Pi", 50.0, "I love wiki"))
+    db.insert(Donation('2014-06-08 14:15:56', "Te", 15, "Yeah \o/"))
+
+    print db.listall()
 
 if __name__ == '__main__':
     main()
