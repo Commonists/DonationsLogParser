@@ -67,7 +67,10 @@ class Donation:
                    t[Donation.COMMENT_FIELD])
 
     def totuple(self):
-        """ Returns a tuple from the donation object. Handy to save into db.
+        """ Returns a tuple from the donation object. 
+
+        Note:
+            Handy to save into db.
 
         Example:
             >> d = Donation('2014-06-08 14:15:56', 'John', 15, 'Thank you')
@@ -91,7 +94,12 @@ class Donation:
 
 class DonationDatabase:
 
-    """ Manages the donation database. """
+    """ Manages the donation database. 
+
+    Attributes:
+        connection (sqlite3.connection): sqlite database
+        cursor (sqlite3.cursor): python database cursor.
+    """
 
     def __init__(self, filename, drop_data_on_create=False):
         """ Init the database object.
@@ -123,7 +131,11 @@ class DonationDatabase:
         self.connection.commit()
 
     def listall(self):
-        """ Returns a list of all the donation in the database. """
+        """ List of all the donation in the database. 
+
+        Returns:
+            list: All donations from the database
+        """
         self.cursor.execute("""SELECT
             date, name, donation, comment
             FROM donations""")
@@ -140,8 +152,12 @@ def main():
     """ Main function of the scripts."""
     db = DonationDatabase("dons.db", drop_data_on_create=True)
 
-    db.insert(Donation('2014-05-06 12:00:05', "Pi", 50.0, "I love wiki"))
-    db.insert(Donation('2014-06-08 14:15:56', "Te", 15, "Yeah \o/"))
+    donation1 = Donation(
+        '2014-05-06 12:00:05', "Pi", 50.0, "I love wiki", db=db)
+    donation2 = Donation('2014-06-08 14:15:56', "Te", 15, "Yeah \o/", db=db)
+
+    donation1.save()
+    donation2.save()
 
     print db.listall()
 
