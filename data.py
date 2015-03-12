@@ -7,49 +7,103 @@ import sqlite3
 
 class Donation:
 
+    """ Donation represents a donation in the Donations Log.
+
+    Attributes:
+        date (str): Date in YYYY-mm-dd HH:MM:SS format.
+        name (str): Donator name
+        donation (float): Value of the donation in Euros
+        comment (str): Free comment by the donator to appear in the Log
+    """
+
     DATE_FIELD = 0
     NAME_FIELD = 1
     DONATION_FIELD = 2
     COMMENT_FIELD = 3
 
     def __init__(self, date, name, donation, comment, db=None):
+        """ Creates a Donation
+
+        Args:
+            date (str): Date in YYYY-mm-dd HH:MM:SS format.
+            name (str): Donator name
+            donation (str): Value of the donation in Euros
+            comment (str): Free comment by the donator to appear in the Log
+            db (data.DonationDatabase, optional): DonationDatabase to save the 
+                donation entry.
+
+        Raises:
+            ValueError: 
+                when date is not a YYYY-mm-dd HH:MM:SS or
+                when donation is not a convertible to float value
+        """
         # checking datetime format
         try:
             datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
         except ValueError:
             raise ValueError(
-                "%s should be in YYYY-mm-dd HH:MM:ss format" % date)
+                "%s should be in YYYY-mm-dd HH:MM:SS format" % date)
         # save object after checking data
         self.date = date
         self.name = name
         self.donation = float(donation)
         self.comment = comment
+        self.db = db
+
+    @classmethod
+    def fromtuple(cls, t):
+        """ Create a donation from a tuple. 
+
+        Example:
+            >> d = Donation(('2014-06-08 14:15:56', 'John', 15, 'Thank you'))
+            data.Donation('2014-06-08 14:15:56', 'John', 15, 'Thank you')
+        """
+        return cls(t[Donation.DATE_FIELD],
+                   t[Donation.NAME_FIELD],
+                   t[Donation.DONATION_FIELD],
+                   t[Donation.COMMENT_FIELD])
+
+    def totuple(self):
+        """ Returns a tuple from the donation object. Handy to save into db.
+
+        Example:
+            >> d = Donation('2014-06-08 14:15:56', 'John', 15, 'Thank you')
+            >> d.totuple()
+            ('2014-06-08 14:15:56', 'John', 15, 'Thank you')
+        """
+        return (self.date, self.name, self.donation, self.comment)
 
     def save(self):
         """ Insert a donation into a DonationDatabase donations table. """
-        if db is not None:
+        if self.db is not None:
             db.insert(self)
 
     def __repr__(self):
-        return ';'.join([self.date, self.name, str(self.donation), self.comment])
+        """ Representation of the object. """
+        return "data.Donation('%s', '%s', %s, '%s')" % (self.date,
+                                                        self.name,
+                                                        str(self.donation),
+                                                        self.comment)
 
 
 class DonationDatabase:
 
     """ Manages the donation database. """
 
-    def __init__(self, filename, is_drop_table=False):
+    def __init__(self, filename, drop_data_on_create=False):
         """ Init the database object.
 
         Args:
             filename (string): name of the sqlite database file.
-            is_drop_table (bool): whether to drop the existing database or not.
+            drop_data_on_create (bool, optional): 
+                whether to drop the existing database or not on creation.
+                default: False
         """
         self.connection = sqlite3.connect(filename)
         self.cursor = self.connection.cursor()
 
         # table creation
-        if is_drop_table:
+        if drop_data_on_create:
             self.cursor.execute("""DROP TABLE donations""")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS donations
                                 (date, name, donation, comment)""")
@@ -69,17 +123,15 @@ class DonationDatabase:
         all_result = self.cursor.fetchall()
         list_donations = []
         for d in all_result:
-            list_donations.append(Donation(d[Donation.DATE_FIELD],
-                                           d[Donation.NAME_FIELD],
-                                           d[Donation.DONATION_FIELD],
-                                           d[Donation.COMMENT_FIELD],
-                                           db=self))
+            donation = Donation.fromtuple(d)
+            donation.db = self
+            list_donations.append(donation)
         return list_donations
 
 
 def main():
     """ Main function of the scripts."""
-    db = DonationDatabase("dons.db", is_drop_table=True)
+    db = DonationDatabase("dons.db", drop_data_on_create=True)
 
     db.insert(Donation('2014-05-06 12:00:05', "Pi", 50.0, "I love wiki"))
     db.insert(Donation('2014-06-08 14:15:56', "Te", 15, "Yeah \o/"))
