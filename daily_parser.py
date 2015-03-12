@@ -5,6 +5,7 @@ daily_parser.py
 """
 from HTMLParser import HTMLParser
 
+
 class DonationsParser(HTMLParser, object):
 	"""
 	HTML parser for the donations log of Wikimedia France
@@ -18,16 +19,17 @@ class DonationsParser(HTMLParser, object):
 		self.donations = dict()
 
 	def handle_starttag(self, tag, attrs):
-		if tag=='td':
+		if tag == 'td':
 			for attr, val in attrs:
-				if attr=='colspan' and val=='4':
-					self.status=1
-		if tag=='em' and self.status==1:
-			self.status=2
+				if attr == 'colspan' and val == '4':
+					self.status = 1
+		if tag == 'em' and self.status == 1:
+			self.status = 2
+
 	def handle_endtag(self, tag):
-		if tag=='em' and self.status==2:
+		if tag == 'em' and self.status == 2:
 			self.status = 1
-		if tag=='td' and self.status==1:
+		if tag == 'td' and self.status == 1:
 			self.status = 0
 			if self.current_line.startswith('Total des dons pour le'):
 				data = self.parse_donation_line(self.current_line)
@@ -37,15 +39,16 @@ class DonationsParser(HTMLParser, object):
 				result['sum'] = int(data[2])
 				result['avg'] = round(float(result['sum']) / float(result['quantity']), 2)
 				self.donations[day] = result
-			self.current_line=""
+			self.current_line = ""
+
 	def handle_data(self, data):
-		if self.status==2:
+		if self.status == 2:
 			self.current_line += data
 
 	def parse_donation_line(self, line):
 		import re
 		# removing white space in order to parse correctly numbers over 999
-		s = line.replace(' ', '') 
+		s = line.replace(' ', '')
 		data = re.findall(r'\d+', s)
 		return data
 
@@ -67,13 +70,14 @@ class DonationsParser(HTMLParser, object):
 		print "var %s = [" % (js)
 		print "['day', 'sum', 'quantity', 'avg'],"
 		for k in sorted(self.donations.keys()):
-			i+=1
+			i += 1
 			data = self.donations[k]
-			print_format = "['%04d-%02d-%s', %d, %d, %.2f]," 
-			if i==n:
-				print_format = "['%04d-%02d-%s', %d, %d, %.2f]" # no comma for the last row
-			print print_format  % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+			print_format = "['%04d-%02d-%s', %d, %d, %.2f],"
+			if i == n:
+				print_format = "['%04d-%02d-%s', %d, %d, %.2f]"  # no comma for the last row
+			print print_format % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
 		print "];"
+
 
 def url_from_args(year, month):
 	"""
@@ -82,12 +86,14 @@ def url_from_args(year, month):
 	"""
 	return "https://dons.wikimedia.fr/journal/%04d-%02d" % (year, month)
 
+
 def get_page(url):
 	"""
 	Get the page based on URL and return it's content as a string.
 	"""
 	import urllib
 	return urllib.urlopen(url).read()
+
 
 def export_annual_result(donations):
 	"""
@@ -100,6 +106,7 @@ def export_annual_result(donations):
 		money += donations[k]['sum']
 		donators += donations[k]['quantity']
 	print "Total donations: %d\nTotal donators: %d" % (money, donators)
+
 
 def main():
 	"""
@@ -124,7 +131,7 @@ def main():
                         dest="month",
 						metavar="MONTH",
 						required=False,
-                        help="Donation month")	
+                        help="Donation month")
 	parser.add_argument("-j", "--js",
     					type=str,
                         dest="js",
@@ -132,8 +139,8 @@ def main():
 						required=False,
                         help="Name of JS var to export to")
 	args = parser.parse_args()
-	#checking args
-	if args.year<0 or args.year>9999:
+	# checking args
+	if args.year < 0 or args.year > 9999:
 		raise ValueError('year should be between 0 and 9999 (instead of %d)' % (args.year))
 	if args.all:
 		# aggregate on the whole year
@@ -144,12 +151,12 @@ def main():
 			donations_parser.feed(content)
 			for k in donations_parser.donations.keys():
 				key = "%04d-%02d-%s" % (args.year, month, k)
-				results[key]=donations_parser.donations[k]
+				results[key] = donations_parser.donations[k]
 		export_annual_result(results)
 	else:
-		if args.month<1 or args.month>12:
+		if args.month < 1 or args.month > 12:
 			raise ValueError('month should be between 1 and 12 (instead of %d)' % (args.month))
-		# 
+
 		content = get_page(url_from_args(args.year, args.month))
 		donations_parser = DonationsParser(args.year, args.month)
 		donations_parser.feed(content)

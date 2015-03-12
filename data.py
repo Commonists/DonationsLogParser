@@ -29,11 +29,11 @@ class Donation:
             name (str): Donator name
             donation (str): Value of the donation in Euros
             comment (str): Free comment by the donator to appear in the Log
-            db (data.DonationDatabase, optional): DonationDatabase to save the 
+            db (data.DonationDatabase, optional): DonationDatabase to save the
                 donation entry.
 
         Raises:
-            ValueError: 
+            ValueError:
                 when date is not a YYYY-mm-dd HH:MM:SS or
                 when donation is not a convertible to float value
         """
@@ -52,7 +52,7 @@ class Donation:
 
     @classmethod
     def fromtuple(cls, t):
-        """ Create a donation from a tuple. 
+        """ Create a donation from a tuple.
 
         Example:
             >> d = Donation(('2014-06-08 14:15:56', 'John', 15, 'Thank you'))
@@ -95,7 +95,7 @@ class DonationDatabase:
 
         Args:
             filename (string): name of the sqlite database file.
-            drop_data_on_create (bool, optional): 
+            drop_data_on_create (bool, optional):
                 whether to drop the existing database or not on creation.
                 default: False
         """
