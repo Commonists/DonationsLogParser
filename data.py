@@ -1,8 +1,5 @@
 #!/usr/bin/python
-""" Manages donation database. 
-
-
-"""
+""" Manages donation database. """
 
 import datetime
 import sqlite3
@@ -126,7 +123,7 @@ class DonationDatabase:
         Args:
             donation (Donation): insert a donation into the database.
         """
-        t = (donation.date, donation.name, donation.donation, donation.comment)
+        t = donation.totuple()
         self.cursor.execute("""INSERT INTO donations VALUES (?, ?, ?, ?)""", t)
         self.connection.commit()
 
