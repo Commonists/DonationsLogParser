@@ -1,5 +1,8 @@
 #!/usr/bin/python
-""" Manages donation database. """
+""" Manages donation database. 
+
+
+"""
 
 import datetime
 import sqlite3
@@ -76,7 +79,7 @@ class Donation:
     def save(self):
         """ Insert a donation into a DonationDatabase donations table. """
         if self.db is not None:
-            db.insert(self)
+            self.db.insert(self)
 
     def __repr__(self):
         """ Representation of the object. """
@@ -110,7 +113,11 @@ class DonationDatabase:
         self.connection.commit()
 
     def insert(self, donation):
-        """ Adds a donation to the database. """
+        """ Adds a donation to the database. 
+
+        Args:
+            donation (Donation): insert a donation into the database.
+        """
         t = (donation.date, donation.name, donation.donation, donation.comment)
         self.cursor.execute("""INSERT INTO donations VALUES (?, ?, ?, ?)""", t)
         self.connection.commit()
