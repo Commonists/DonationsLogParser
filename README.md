@@ -1,5 +1,6 @@
 DonationsLogParser
 ==================
+[![Build Status](https://travis-ci.org/Commonists/DonationsLogParser.svg?branch=master)](https://travis-ci.org/Commonists/DonationsLogParser)
 
 Donations Log Parser for Wikimedia France. 
 It allows to export donations log by month into CSV or Java Script array.
