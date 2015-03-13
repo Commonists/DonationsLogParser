@@ -64,7 +64,7 @@ class Donation:
                    t[Donation.COMMENT_FIELD])
 
     def totuple(self):
-        """ Returns a tuple from the donation object. 
+        """ Returns a tuple from the donation object.
 
         Note:
             Handy to save into db.
@@ -91,7 +91,7 @@ class Donation:
 
 class DonationDatabase:
 
-    """ Manages the donation database. 
+    """ Manages the donation database.
 
     Attributes:
         connection (sqlite3.connection): sqlite database
@@ -118,7 +118,7 @@ class DonationDatabase:
         self.connection.commit()
 
     def insert(self, donation):
-        """ Adds a donation to the database. 
+        """ Adds a donation to the database.
 
         Args:
             donation (Donation): insert a donation into the database.
@@ -128,7 +128,7 @@ class DonationDatabase:
         self.connection.commit()
 
     def listall(self):
-        """ List of all the donation in the database. 
+        """ List of all the donation in the database.
 
         Returns:
             list: All donations from the database
