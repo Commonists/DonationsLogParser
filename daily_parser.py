@@ -103,11 +103,13 @@ def export_annual_result(donations):
 	"""
 	money = 0
 	donators = 0
-	print "%d days of donations" % (len(donations.keys()))
+	report = ''
+	report += "%d days of donations" % (len(donations.keys()))
 	for k in donations.keys():
 		money += donations[k]['sum']
 		donators += donations[k]['quantity']
-	print "Total donations: %d\nTotal donators: %d" % (money, donators)
+	report += "Total donations: %d\nTotal donators: %d" % (money, donators)
+	return report
 
 
 def aggregate_on_the_whole_year(year, month):
@@ -120,7 +122,7 @@ def aggregate_on_the_whole_year(year, month):
 		for k in donations_parser.donations.keys():
 			key = "%04d-%02d-%s" % (year, month, k)
 			results[key] = donations_parser.donations[k]
-	export_annual_result(results)
+	print export_annual_result(results)
 
 
 def main():
