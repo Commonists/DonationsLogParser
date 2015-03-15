@@ -64,24 +64,21 @@ class DonationsParser(HTMLParser, object):
 				(self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
 		return csv
 
+	def _make_js_line(self, day, data):
+		print_format = "['%04d-%02d-%s', %d, %d, %.2f]"
+		return print_format %\
+			(self.year, self.month, day, data['sum'], data['quantity'], data['avg'])
+
 	def get_js(self, js_var_name):
 		"""
 		print donations to JS array
 		"""
-		n = len(self.donations.keys())
-		i = 0
-		js = ''
-		js += "var %s = [\n" % (js_var_name)
+		js = "var %s = [\n" % (js_var_name)
 		js += "['day', 'sum', 'quantity', 'avg'],\n"
-		for k in sorted(self.donations.keys()):
-			i += 1
-			data = self.donations[k]
-			print_format = "['%04d-%02d-%s', %d, %d, %.2f],\n"
-			if i == n:
-				print_format = "['%04d-%02d-%s', %d, %d, %.2f]\n"  # no comma for the last row
-			js += print_format \
-				% (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
-		js += "];"
+		js_contents = [self._make_js_line(k, self.donations[k])
+					   for k in sorted(self.donations.keys())]
+		js += ',\n'.join(js_contents)
+		js += "\n];"
 		return js
 
 
