@@ -59,7 +59,8 @@ class DonationsParser(HTMLParser, object):
 		print "'day', 'sum', 'quantity', 'avg'"
 		for k in sorted(self.donations.keys()):
 			data = self.donations[k]
-			print "'%04d-%02d-%s', %d, %d, %.2f" % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+			print "'%04d-%02d-%s', %d, %d, %.2f" % \
+				(self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
 
 	def print_js(self, js):
 		"""
@@ -75,7 +76,8 @@ class DonationsParser(HTMLParser, object):
 			print_format = "['%04d-%02d-%s', %d, %d, %.2f],"
 			if i == n:
 				print_format = "['%04d-%02d-%s', %d, %d, %.2f]"  # no comma for the last row
-			print print_format % (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+			print print_format \
+				% (self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
 		print "];"
 
 
