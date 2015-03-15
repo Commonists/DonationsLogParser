@@ -36,3 +36,12 @@ class TestDonationsParser(unittest.TestCase):
 """
         output = self.donations_parser.get_csv()
         self.assertEqual(output, expected)
+
+    def test_get_js(self):
+        expected = """var my_var = [
+['day', 'sum', 'quantity', 'avg'],
+['2014-01-01', 370, 8, 46.25],
+['2014-01-02', 5682, 43, 132.14]
+];"""
+        output = self.donations_parser.get_js('my_var')
+        self.assertEqual(output, expected)
