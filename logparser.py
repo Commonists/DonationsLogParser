@@ -22,7 +22,7 @@ class DailyParser(HTMLParser):
     END_OF_DONATION_TABLE = 5
 
     def __init__(self):
-        super(DonationsParser, self).__init__()
+        super(DailyParser, self).__init__()
         self.status = DailyParser.START_PARSER
         self.donations = []
 
@@ -43,7 +43,7 @@ class LogParser:
 
     @staticmethod
     def daypage(day):
-        """ Returns the page content containing the donations from a specific 
+        """Returns the page content containing the donations from a specific
         day.
 
         Args:
@@ -52,7 +52,7 @@ class LogParser:
         Returns:
             str: page content with the donation of the day specified as args.
         """
-        url_args = date.strftime("%Y-%m-%d")
+        url_args = day.strftime("%Y-%m-%d")
         url = "https://dons.wikimedia.fr/journal/%s" % url_args
         return urllib.urlopen(url).read()
 
