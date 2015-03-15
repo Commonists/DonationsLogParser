@@ -52,15 +52,17 @@ class DonationsParser(HTMLParser, object):
 		data = re.findall(r'\d+', s)
 		return data
 
-	def print_csv(self):
+	def get_csv(self):
 		"""
 		Print donations as CSV
 		"""
-		print "'day', 'sum', 'quantity', 'avg'"
+		csv = ''
+		csv += "'day', 'sum', 'quantity', 'avg'\n"
 		for k in sorted(self.donations.keys()):
 			data = self.donations[k]
-			print "'%04d-%02d-%s', %d, %d, %.2f" % \
+			csv += "'%04d-%02d-%s', %d, %d, %.2f\n" % \
 				(self.year, self.month, k, data['sum'], data['quantity'], data['avg'])
+		return csv
 
 	def print_js(self, js):
 		"""
@@ -171,7 +173,7 @@ def main():
 		if args.js:
 			donations_parser.print_js(args.js)
 		else:
-			donations_parser.print_csv()
+			print donations_parser.get_csv()
 
 if __name__ == "__main__":
 	main()
