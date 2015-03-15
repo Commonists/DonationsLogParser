@@ -110,6 +110,19 @@ def export_annual_result(donations):
 	print "Total donations: %d\nTotal donators: %d" % (money, donators)
 
 
+def aggregate_on_the_whole_year(year, month):
+	"""Aggregate on the whole year."""
+	results = dict()
+	for month in range(1, 13):
+		content = get_page(url_from_args(year, month))
+		donations_parser = DonationsParser(year, month)
+		donations_parser.feed(content)
+		for k in donations_parser.donations.keys():
+			key = "%04d-%02d-%s" % (year, month, k)
+			results[key] = donations_parser.donations[k]
+	export_annual_result(results)
+
+
 def main():
 	"""
 	Main function of the script parse_donations.py.
@@ -145,16 +158,7 @@ def main():
 	if args.year < 0 or args.year > 9999:
 		raise ValueError('year should be between 0 and 9999 (instead of %d)' % (args.year))
 	if args.all:
-		# aggregate on the whole year
-		results = dict()
-		for month in range(1, 13):
-			content = get_page(url_from_args(args.year, month))
-			donations_parser = DonationsParser(args.year, month)
-			donations_parser.feed(content)
-			for k in donations_parser.donations.keys():
-				key = "%04d-%02d-%s" % (args.year, month, k)
-				results[key] = donations_parser.donations[k]
-		export_annual_result(results)
+		aggregate_on_the_whole_year(args.year, args.month)
 	else:
 		if args.month < 1 or args.month > 12:
 			raise ValueError('month should be between 1 and 12 (instead of %d)' % (args.month))
